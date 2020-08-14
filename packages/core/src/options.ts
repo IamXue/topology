@@ -20,6 +20,7 @@ export interface Options {
   color?: string;
   activeColor?: string;
   hoverColor?: string;
+  hoverDockColor?: string;
   dragColor?: string;
   animateColor?: string;
   font?: {
@@ -32,6 +33,7 @@ export interface Options {
   };
   rotateCursor?: string;
   hoverCursor?: string;
+  hideActiveLineCP?: boolean;
   hideInput?: boolean;
   hideRotateCP?: boolean;
   hideSizeCP?: boolean;
@@ -69,6 +71,7 @@ export const DefalutOptions: Options = {
   },
   color: '#222',
   hoverColor: '#fa541c',
+  hoverDockColor: '#fa541c',
   dragColor: '#1890ff',
   activeColor: '#1890ff',
   rotateCursor: '/assets/img/rotate.cur',

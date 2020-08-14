@@ -906,7 +906,31 @@ export class Topology {
               this.moveIn.hoverAnchorIndex
             ].direction,
             this.moveIn.hoverAnchorIndex,
-            this.moveIn.hoverNode.id
+            this.moveIn.hoverNode.id,
+            this.moveIn.hoverNode.rotatedAnchors[
+              this.moveIn.hoverAnchorIndex
+            ].hidden,
+            this.moveIn.hoverNode.rotatedAnchors[
+              this.moveIn.hoverAnchorIndex
+            ].mode,
+            this.moveIn.hoverNode.rotatedAnchors[
+              this.moveIn.hoverAnchorIndex
+            ].radius,
+            this.moveIn.hoverNode.rotatedAnchors[
+              this.moveIn.hoverAnchorIndex
+            ].strokeStyle,
+            this.moveIn.hoverNode.rotatedAnchors[
+              this.moveIn.hoverAnchorIndex
+            ].fillStyle,
+            this.moveIn.hoverNode.rotatedAnchors[
+              this.moveIn.hoverAnchorIndex
+            ].hoverFillStyle,
+            this.moveIn.hoverNode.rotatedAnchors[
+              this.moveIn.hoverAnchorIndex
+            ].hoverStrokeStyle,
+            this.moveIn.hoverNode.rotatedAnchors[
+              this.moveIn.hoverAnchorIndex
+            ].data
           ),
           fromArrow: this.data.fromArrowType,
           to: new Point(
@@ -1015,7 +1039,7 @@ export class Topology {
             } else {
               willAddLine = !this.options.disableEmptyLine && !this.hoverLayer.line.disableEmptyLine;
             }
-            
+
             if (willAddLine) {
               this.activeLayer.pens = [this.hoverLayer.line];
               this.dispatch('addLine', this.hoverLayer.line);
@@ -1471,6 +1495,14 @@ export class Topology {
             point.direction = item.rotatedAnchors[point.anchorIndex].direction;
             point.x = item.rotatedAnchors[point.anchorIndex].x;
             point.y = item.rotatedAnchors[point.anchorIndex].y;
+            point.hidden = item.rotatedAnchors[point.anchorIndex].hidden;
+            point.mode = item.rotatedAnchors[point.anchorIndex].mode;
+            point.radius = item.rotatedAnchors[point.anchorIndex].radius;
+            point.strokeStyle = item.rotatedAnchors[point.anchorIndex].strokeStyle;
+            point.fillStyle = item.rotatedAnchors[point.anchorIndex].fillStyle;
+            point.hoverFillStyle = item.rotatedAnchors[point.anchorIndex].hoverFillStyle;
+            point.hoverStrokeStyle = item.rotatedAnchors[point.anchorIndex].hoverStrokeStyle;
+            point.data = item.rotatedAnchors[point.anchorIndex].data;
             this.hoverLayer.dockAnchor = item.rotatedAnchors[i];
             break;
           }

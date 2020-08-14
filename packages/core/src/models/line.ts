@@ -43,7 +43,7 @@ export class Line extends Pen {
 
   constructor(json?: any) {
     super(json);
-
+  
     this.type = PenType.Line;
     if (json) {
       if (json.from) {
@@ -52,7 +52,15 @@ export class Line extends Pen {
           json.from.y,
           json.from.direction,
           json.from.anchorIndex,
-          json.from.id
+          json.from.id,
+          json.from.hidden,
+          json.from.mode,
+          json.from.radius,
+          json.from.strokeStyle,
+          json.from.fillStyle,
+          json.from.hoverFillStyle,
+          json.from.hoverStrokeStyle,
+          json.from.data
         );
       }
       if (json.to) {
@@ -61,7 +69,15 @@ export class Line extends Pen {
           json.to.y,
           json.to.direction,
           json.to.anchorIndex,
-          json.to.id
+          json.to.id,
+          json.to.hidden,
+          json.to.mode,
+          json.to.radius,
+          json.to.strokeStyle,
+          json.to.fillStyle,
+          json.to.hoverFillStyle,
+          json.to.hoverStrokeStyle,
+          json.to.data
         );
       }
 

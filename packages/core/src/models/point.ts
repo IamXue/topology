@@ -8,6 +8,9 @@ export class Point {
   // The index of docker anchor on node.
   radius: number;
   fillStyle: string;
+  strokeStyle: string;
+  hoverFillStyle: string;
+  hoverStrokeStyle: string;
   anchorIndex: number;
 
   hidden: boolean;
@@ -19,12 +22,26 @@ export class Point {
     direction?: Direction,
     anchorIndex?: number,
     id?: number | string,
-    hidden?: boolean
+    hidden?: boolean,
+    mode?: AnchorMode,
+    radius?: number,
+    strokeStyle?: string,
+    fillStyle?: string,
+    hoverFillStyle?: string,
+    hoverStrokeStyle?: string,
+    data?: any
   ) {
     this.direction = direction;
     this.anchorIndex = anchorIndex;
     this.id = id;
     this.hidden = hidden;
+    this.mode = mode;
+    this.radius = radius;
+    this.strokeStyle = strokeStyle;
+    this.fillStyle = fillStyle;
+    this.hoverFillStyle = hoverFillStyle;
+    this.hoverStrokeStyle = hoverStrokeStyle;
+    this.data = data;
   }
 
   floor() {
@@ -44,7 +61,13 @@ export class Point {
       this.direction,
       this.anchorIndex,
       this.id,
-      this.hidden
+      this.hidden,
+      this.mode,
+      this.radius,
+      this.strokeStyle,
+      this.fillStyle,
+      this.hoverFillStyle,
+      this.hoverStrokeStyle
     );
     if (this.data) {
       pt.data = this.data;

@@ -88,9 +88,8 @@ export class HoverLayer extends Layer {
     if (this.data.locked === Lock.NoEvent) {
       return;
     }
+    ctx.fillStyle = this.options.hoverColor;
     ctx.save();
-    ctx.strokeStyle = this.options.hoverColor;
-    ctx.fillStyle = this.anchorFillStyle;
     // anchors
     if (this.options.alwaysAnchor) {
       this.data.pens.forEach((pen: Pen) => {
@@ -114,12 +113,14 @@ export class HoverLayer extends Layer {
             0,
             Math.PI * 2
           );
+          ctx.strokeStyle = anchor.strokeStyle || this.options.hoverColor;
+          ctx.fillStyle = anchor.fillStyle || this.anchorFillStyle;
           ctx.fill();
           ctx.stroke();
         }
       });
     }
-
+    ctx.restore();
     if (this.node && !this.data.locked) {
       if (!this.node.getTID()) {
         this.node.setTID(this.TID);
@@ -163,17 +164,22 @@ export class HoverLayer extends Layer {
             0,
             Math.PI * 2
           );
+          ctx.strokeStyle = this.node.rotatedAnchors[i].hoverFillStyle || this.options.hoverColor;
+          ctx.fillStyle = this.node.rotatedAnchors[i].hoverStrokeStyle || this.anchorFillStyle;
           ctx.fill();
           ctx.stroke();
         }
       }
     }
-
-    ctx.fillStyle = this.options.hoverColor;
+    
     if (this.dockAnchor) {
+      ctx.save();
       ctx.beginPath();
-      ctx.arc(this.dockAnchor.x, this.dockAnchor.y, 4, 0, Math.PI * 2);
+      ctx.arc(this.dockAnchor.x, this.dockAnchor.y, this.dockAnchor.radius || this.anchorRadius, 0, Math.PI * 2);
+      ctx.strokeStyle = this.dockAnchor.hoverFillStyle || this.options.hoverColor;
+      ctx.fillStyle = this.dockAnchor.hoverStrokeStyle || this.options.hoverDockColor;
       ctx.fill();
+      ctx.restore();
     }
 
     if (this.hoverLineCP) {
