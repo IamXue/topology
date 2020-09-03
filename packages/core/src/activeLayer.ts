@@ -510,7 +510,6 @@ export class ActiveLayer extends Layer {
       if (item instanceof Node) {
         const tmp = new Node(item, true);
         tmp.setTID(TID);
-        tmp.data = null;
         tmp.fillStyle = null;
         tmp.bkType = 0;
         tmp.icon = '';

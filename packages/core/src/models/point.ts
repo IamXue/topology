@@ -12,7 +12,6 @@ export class Point {
   hoverFillStyle: string;
   hoverStrokeStyle: string;
   anchorIndex: number;
-
   hidden: boolean;
   mode: AnchorMode;
   data: any;
