@@ -122,31 +122,33 @@ export class HoverLayer extends Layer {
     }
     ctx.restore();
     if (this.node && !this.data.locked) {
-      if (!this.node.getTID()) {
-        this.node.setTID(this.TID);
-      }
-      this.root = this.getRoot(this.node) || this.node;
-      if (this.root) {
-        ctx.save();
-        ctx.strokeStyle = this.options.dragColor;
-        ctx.globalAlpha = 0.2;
-        if (this.root.rotate) {
-          ctx.translate(this.root.rect.center.x, this.root.rect.center.y);
-          ctx.rotate(
-            ((this.root.rotate + this.root.offsetRotate) * Math.PI) / 180
-          );
-          ctx.translate(-this.root.rect.center.x, -this.root.rect.center.y);
+      if (!this.options.isHideHoverRect) {
+        if (!this.node.getTID()) {
+          this.node.setTID(this.TID);
         }
-        ctx.beginPath();
-        ctx.strokeRect(
-          this.root.rect.x,
-          this.root.rect.y,
-          this.root.rect.width,
-          this.root.rect.height
-        );
-        ctx.restore();
+        this.root = this.getRoot(this.node) || this.node;
+        if (this.root) {
+          ctx.save();
+          ctx.strokeStyle = this.options.dragColor;
+          ctx.globalAlpha = 0.2;
+          if (this.root.rotate) {
+            ctx.translate(this.root.rect.center.x, this.root.rect.center.y);
+            ctx.rotate(
+              ((this.root.rotate + this.root.offsetRotate) * Math.PI) / 180
+            );
+            ctx.translate(-this.root.rect.center.x, -this.root.rect.center.y);
+          }
+          ctx.beginPath();
+          ctx.strokeRect(
+            this.root.rect.x,
+            this.root.rect.y,
+            this.root.rect.width,
+            this.root.rect.height
+          );
+          ctx.restore();
+        }
       }
-
+      
       if (!this.options.hideAnchor) {
         for (let i = 0; i < this.node.rotatedAnchors.length; ++i) {
           if (

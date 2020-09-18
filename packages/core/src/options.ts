@@ -20,6 +20,8 @@ export interface Options {
   color?: string;
   activeColor?: string;
   hoverColor?: string;
+  isHideHoverRect?: boolean;
+  isHideActiveRect?: boolean;
   hoverDockColor?: string;
   dragColor?: string;
   animateColor?: string;
@@ -71,6 +73,8 @@ export const DefalutOptions: Options = {
   },
   color: '#222',
   hoverColor: '#fa541c',
+  isHideHoverRect: false,
+  isHideActiveRect: false,
   hoverDockColor: '#fa541c',
   dragColor: '#1890ff',
   activeColor: '#1890ff',
