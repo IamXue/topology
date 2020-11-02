@@ -37,6 +37,49 @@ export class HoverLayer extends Layer {
     Store.set(this.generateStoreKey('LT:HoverLayer'), this);
   }
 
+  // 锚点吸附
+  dockLine () {
+    if (!this.line.to.id) {
+      let pens = this.data.pens
+      let coordinate = {
+        x: this.line.to.x,
+        y: this.line.to.y
+      }
+      let initL = 25
+      let anchorsObj = {
+        anchors: null,
+        length: initL,
+        id: '',
+        anchorIndex:0
+      }
+      let a = 0 //x坐标差
+      let b = 0 //y坐标差
+      let l = 0 // 两点距离
+      pens.forEach((item: Node) => {
+        if (item.type === 0) {
+          item.anchors.forEach((im, i) => {
+            if (im.direction === 4) {
+              a = Math.abs(coordinate.x - im.x)
+              b = Math.abs(coordinate.y - im.y)
+              l = Math.sqrt(Math.pow(a, 2) + Math.pow(b, 2))
+              if (l <= initL && l <= anchorsObj.length) {
+                anchorsObj.anchors = im
+                anchorsObj.length = l
+                anchorsObj.id = item.id
+                anchorsObj.anchorIndex = i
+              }
+            }
+          })
+        }
+      })
+      if (anchorsObj.anchors) {
+        this.line.to = anchorsObj.anchors
+        this.line.to.id = anchorsObj.id
+        this.line.to.anchorIndex = anchorsObj.anchorIndex
+      }
+    }
+  }
+
   lineTo(to: Point, toArrow: string = 'triangleSolid') {
     if (!this.line || this.line.locked) {
       return;

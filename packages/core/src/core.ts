@@ -1024,6 +1024,10 @@ export class Topology {
           // New active.
           if (this.hoverLayer.line) {
             let willAddLine: boolean;
+            
+            // 锚点吸附
+            this.hoverLayer.dockLine()
+
             if (this.hoverLayer.line.to.id) {
               if (!this.options.disableRepeatLine) {
                 willAddLine = true;
