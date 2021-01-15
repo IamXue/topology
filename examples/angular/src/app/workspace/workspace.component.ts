@@ -19,7 +19,7 @@ declare var JSZip: any;
   selector: 'app-workspace',
   templateUrl: 'workspace.component.html',
   styleUrls: ['./workspace.component.scss'],
-  providers: [WorkspaceService]
+  providers: [WorkspaceService],
 })
 export class WorkspaceComponent implements OnInit, OnDestroy {
   @ViewChild('workspace', { static: true }) workspace: ElementRef;
@@ -40,9 +40,9 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     userId: '',
     class: '',
     component: false,
-    shared: false
+    shared: false,
   };
-  icons: { icon: string; iconFamily: string; }[] = [];
+  icons: { icon: string; iconFamily: string }[] = [];
 
   user: any;
   subUser: any;
@@ -65,7 +65,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     private router: Router,
     private activateRoute: ActivatedRoute,
     private http: HttpClient
-  ) { }
+  ) {}
 
   ngOnInit() {
     window.scrollTo(0, 0);
@@ -81,7 +81,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     // Wait for parent dom render.
     setTimeout(() => {
       this.canvas = new Topology(this.workspace.nativeElement, this.canvasOptions);
-      this.subRoute = this.activateRoute.queryParamMap.subscribe(params => {
+      this.subRoute = this.activateRoute.queryParamMap.subscribe((params) => {
         if (params.get('id')) {
           this.onOpen({ id: params.get('id'), version: params.get('version') });
         } else {
@@ -94,7 +94,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
             userId: '',
             class: '',
             component: params.get('c') || false,
-            shared: false
+            shared: false,
           };
         }
       });
@@ -105,8 +105,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     this.service.canvasRegister();
   }
 
-
-  onMenu(event: { name: string; data: any; }) {
+  onMenu(event: { name: string; data: any }) {
     if (!this.canvas) {
       return;
     }
@@ -177,8 +176,16 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
         break;
       case 'view':
         if (this.data.id) {
-          this.router.navigateByUrl(`/view?id=${this.data.id}${this.data.version ? '&version=' + this.data.version : ''}&r=1`);
+          this.router.navigateByUrl(
+            `/view?id=${this.data.id}${this.data.version ? '&version=' + this.data.version : ''}&r=1`
+          );
         }
+        break;
+      case 'fitView':
+        this.canvas.fitView();
+        break;
+      case 'centerView':
+        this.canvas.centerView();
         break;
     }
   }
@@ -238,7 +245,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     }
   }
 
-  onEditTool(tool: { id?: string; name: string; }) {
+  onEditTool(tool: { id?: string; name: string }) {
     if (tool.id) {
       this.router.navigateByUrl(`/workspace?id=${tool.id}`);
       return;
@@ -255,7 +262,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
         userId: '',
         class: tool.name,
         component: true,
-        shared: false
+        shared: false,
       };
       this.canvas.open(this.data.data);
     });
@@ -271,14 +278,14 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
       userId: '',
       class: '',
       component: false,
-      shared: false
+      shared: false,
     };
     Store.set('file', this.data);
     this.canvas.open(this.data.data);
     this.router.navigateByUrl('/workspace');
   }
 
-  async onOpen(data: { id: string; version?: string; }) {
+  async onOpen(data: { id: string; version?: string }) {
     const ret = await this.service.Get(data);
     if (!ret) {
       this.router.navigateByUrl('/workspace');
@@ -288,7 +295,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
       id: ret.id,
       version: ret.version,
       image: ret.image,
-      name: ret.name
+      name: ret.name,
     });
 
     if (this.user && ret.userId !== this.user.id) {
@@ -297,8 +304,8 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     }
     this.data = ret;
     Store.set('lineName', ret.data.lineName);
-    Store.set('fromArrowType', ret.data.fromArrowType);
-    Store.set('toArrowType', ret.data.toArrowType);
+    Store.set('fromArrow', ret.data.fromArrow);
+    Store.set('toArrow', ret.data.toArrow);
     Store.set('scale', ret.data.scale);
     Store.set('locked', ret.data.locked);
     this.canvas.open(ret.data);
@@ -309,7 +316,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
   onOpenFile() {
     const input = document.createElement('input');
     input.type = 'file';
-    input.onchange = event => {
+    input.onchange = (event) => {
       const elem: any = event.target;
       if (elem.files && elem.files[0]) {
         if (elem.files[0].name.indexOf('.json') > 0) {
@@ -317,7 +324,6 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
         } else {
           this.openZip(elem.files[0]);
         }
-
       }
     };
     input.click();
@@ -334,8 +340,8 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
         const data = JSON.parse(text);
         if (data && data.lineName) {
           Store.set('lineName', data.lineName);
-          Store.set('fromArrowType', data.fromArrowType);
-          Store.set('toArrowType', data.toArrowType);
+          Store.set('fromArrow', data.fromArrow);
+          Store.set('toArrow', data.toArrow);
           this.data = {
             id: '',
             version: '',
@@ -346,7 +352,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
             userId: '',
             class: '',
             component: false,
-            shared: false
+            shared: false,
           };
           this.canvas.open(data);
         }
@@ -361,7 +367,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     const _noticeService: NoticeService = new NoticeService();
     _noticeService.notice({
       body: '加载zip在企业版中支持！',
-      theme: 'warning'
+      theme: 'warning',
     });
   }
 
@@ -370,7 +376,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
       return;
     }
     this.data.data = this.canvas.data;
-    this.canvas.toImage(null, null, async blob => {
+    this.canvas.toImage(2, 'image/png', 1, async (blob) => {
       if (this.data.id && !this.coreService.isVip(this.user)) {
         if (!(await this.service.DelImage(this.data.image))) {
           return;
@@ -393,7 +399,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
         const _noticeService: NoticeService = new NoticeService();
         _noticeService.notice({
           body: '保存成功！',
-          theme: 'success'
+          theme: 'success',
         });
 
         if (!this.data.id || this.activateRoute.snapshot.queryParamMap.get('version')) {
@@ -404,7 +410,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
             id: this.data.id,
             image: this.data.image,
             name: this.data.name,
-            desc: this.data.desc
+            desc: this.data.desc,
           });
         }
       }
@@ -428,10 +434,12 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (await this.service.Patch({
-      id: this.data.id,
-      name: this.data.name
-    })) {
+    if (
+      await this.service.Patch({
+        id: this.data.id,
+        name: this.data.name,
+      })
+    ) {
       this.editFilename = false;
     }
   }
@@ -451,11 +459,11 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     const _noticeService: NoticeService = new NoticeService();
     _noticeService.notice({
       body: '此功能在企业版中支持！',
-      theme: 'warning'
+      theme: 'warning',
     });
   }
 
-  onSavePng(options?: { type?: string; quality?: any; ext?: string; }) {
+  onSavePng(options?: { type?: string; quality?: any; ext?: string }) {
     if (!options) {
       options = {};
     }
@@ -472,7 +480,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
       !(await this.service.Patch({
         id: this.data.id,
         image: this.data.image,
-        shared: !this.data.shared
+        shared: !this.data.shared,
       }))
     ) {
       return;
@@ -489,7 +497,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
       case 'line':
       case 'addLine':
         this.selection = {
-          pen: data
+          pen: data,
         };
         this.locked = data.locked;
         break;
@@ -497,7 +505,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
         this.locked = true;
         if (data && data.length) {
           this.selection = {
-            pens: data
+            pens: data,
           };
           for (const item of data) {
             if (!item.locked) {
@@ -554,12 +562,12 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     if (event.clientY + 360 < document.body.clientHeight) {
       this.contextmenu = {
         left: event.clientX + 'px',
-        top: event.clientY + 'px'
+        top: event.clientY + 'px',
       };
     } else {
       this.contextmenu = {
         left: event.clientX + 'px',
-        bottom: '5px'
+        bottom: '5px',
       };
     }
   }
@@ -573,7 +581,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
     const _noticeService: NoticeService = new NoticeService();
     _noticeService.notice({
       body: '此功能在企业版中支持！',
-      theme: 'warning'
+      theme: 'warning',
     });
   }
 

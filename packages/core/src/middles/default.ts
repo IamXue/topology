@@ -21,7 +21,7 @@ import {
   leftArrowIconRect,
   leftArrowTextRect,
   rightArrowIconRect,
-  rightArrowTextRect
+  rightArrowTextRect,
 } from './nodes/arrow.rect';
 import { lineIconRect, lineTextRect } from './nodes/line.rect';
 import { line, lineControlPoints, calcLineControlPoints } from './lines/line';
@@ -30,7 +30,7 @@ import {
   polylineControlPoints,
   pointInPolyline,
   calcPolylineControlPoints,
-  dockPolylineControlPoint
+  dockPolylineControlPoint,
 } from './lines/polyline';
 import { curve, curveControlPoints, pointInCurve, calcCurveControlPoints } from './lines/curve';
 import { mind, calcMindControlPoints, mindControlPoints, pointInMind } from './lines/mind';
@@ -175,7 +175,7 @@ function init() {
   textRectFns.line = lineTextRect;
 
   // Image
-  drawNodeFns.image = (ctx: CanvasRenderingContext2D, node: Rect) => { };
+  drawNodeFns.image = (ctx: CanvasRenderingContext2D, node: Rect) => {};
   iconRectFns.image = imageIconRect;
   textRectFns.image = imageTextRect;
 
@@ -196,26 +196,26 @@ function init() {
     drawFn: line,
     drawControlPointsFn: lineControlPoints,
     controlPointsFn: calcLineControlPoints,
-    pointIn: pointInPolyline
+    pointIn: pointInPolyline,
   };
   drawLineFns.polyline = {
     drawFn: polyline,
     drawControlPointsFn: polylineControlPoints,
     controlPointsFn: calcPolylineControlPoints,
     dockControlPointFn: dockPolylineControlPoint,
-    pointIn: pointInPolyline
+    pointIn: pointInPolyline,
   };
   drawLineFns.curve = {
     drawFn: curve,
     drawControlPointsFn: curveControlPoints,
     controlPointsFn: calcCurveControlPoints,
-    pointIn: pointInCurve
+    pointIn: pointInCurve,
   };
   drawLineFns.mind = {
     drawFn: mind,
     drawControlPointsFn: mindControlPoints,
     controlPointsFn: calcMindControlPoints,
-    pointIn: pointInMind
+    pointIn: pointInMind,
   };
   // ********end********
 
@@ -249,10 +249,10 @@ export function registerNode(
   anchorsFn?: (node: Node) => void,
   iconRectFn?: (node: Node) => void,
   textRectFn?: (node: Node) => void,
-  force = true
+  protect?: boolean
 ) {
   // Exist
-  if (drawNodeFns[name] && !force) {
+  if (drawNodeFns[name] && protect) {
     return false;
   }
 
@@ -290,7 +290,7 @@ export function registerLine(
     drawControlPointsFn: drawControlPointsFn,
     controlPointsFn: controlPointsFn,
     dockControlPointFn: dockControlPointFn,
-    pointIn: pointInFn
+    pointIn: pointInFn,
   };
   return true;
 }
@@ -302,10 +302,10 @@ export function registerLine(
 export function registerArrow(
   name: string,
   drawFn: (ctx: CanvasRenderingContext2D, from: Point, to: Point, size: number) => void,
-  force = true
+  protect?: boolean
 ) {
   // Exist
-  if (drawArrowFns[name] && !force) {
+  if (drawArrowFns[name] && protect) {
     return false;
   }
 

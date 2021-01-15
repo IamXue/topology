@@ -1,7 +1,7 @@
 export class Layer {
-  protected TID: String;
+  protected TID: string;
 
-  constructor(TID: String) {
+  constructor(TID: string) {
     this.TID = TID;
   }
 

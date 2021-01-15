@@ -1,6 +1,6 @@
 {
   "name": "@topology/sequence-diagram",
-  "version": "0.2.24",
+  "version": "0.3.0",
   "description": "A sequence diagram tool using le5le-topology.",
   "main": "index.js",
   "types": "index.d.ts",
@@ -24,8 +24,8 @@
     "url": "https://github.com/le5le-com/topology/issues"
   },
   "homepage": "https://github.com/le5le-com/topology#readme",
-  "dependencies": {
-    "@topology/core": "^0.2.24"
+  "peerDependencies": {
+    "@topology/core": "^0.3.0"
   },
   "publishConfig": {
     "access": "public"

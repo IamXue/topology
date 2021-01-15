@@ -153,8 +153,20 @@
     <div class="separator"></div>
     <div class="item mh5">
       视图：{{ data.scale * 100 | number: ".0-2" }}%
-      <a class="hover" *ngIf="data.scale !== 1" (click)="onMenu('scale', 1)" style="padding-right: 0;">
+      <a  title="还原原始尺寸" class="hover" *ngIf="data.scale !== 1" (click)="onMenu('scale', 1)" style="padding-right: 0;">
         还原
+      </a>
+    </div>
+    <div class="separator"></div>
+    <div class="item mh5">
+      <a  (click)="onMenu('fitView')" title='图形居中，并且缩放图形到画布尺寸' >
+        自适应
+      </a>
+    </div>
+    <div class="separator"></div>
+    <div class="item mh5">
+      <a  (click)="onMenu('centerView')" title='居中图形' >
+        居中
       </a>
     </div>
     <div class="separator"></div>
@@ -187,14 +199,14 @@
     </div>
     <div class="item lines">
       <a>
-        <i class="iconfont icon-from-{{ data.fromArrowType }}" style="position: relative;top: .06rem;"></i>
+        <i class="iconfont icon-from-{{ data.fromArrow }}" style="position: relative;top: .06rem;"></i>
       </a>
       <div class="dropdown">
         <div class="item">
           默认起点箭头：
         </div>
         <div class="item" *ngFor="let item of arrowTypes">
-          <a (click)="data.fromArrowType=item">
+          <a (click)="data.fromArrow=item">
             <i class="iconfont icon-from-{{ item }}"></i>
           </a>
         </div>
@@ -202,14 +214,14 @@
     </div>
     <div class="item lines">
       <a>
-        <i class="iconfont icon-to-{{ data.toArrowType }}" style="position: relative;top: .06rem;"></i>
+        <i class="iconfont icon-to-{{ data.toArrow }}" style="position: relative;top: .06rem;"></i>
       </a>
       <div class="dropdown">
         <div class="item">
           默认终点箭头：
         </div>
         <div class="item" *ngFor="let item of arrowTypes">
-          <a (click)="data.toArrowType=item">
+          <a (click)="data.toArrow=item">
             <i class="iconfont icon-to-{{ item }}"></i>
           </a>
         </div>

@@ -1,5 +1,7 @@
+import { Store } from 'le5le-store';
+
 import { Node } from '../../models/node';
-import { Line } from '../../models/line';
+import { Pen } from '../../models/pen';
 
 // getWords: Get the word array from text. A single Chinese character is a word.
 export function getWords(txt: string) {
@@ -29,15 +31,10 @@ export function getWords(txt: string) {
   return words;
 }
 
-// getLines：Get lines of drawing text.
+// getWrapLines: Get the lines by wrap.
 // words - the word array of text, to avoid spliting a word.
 // maxWidth - the max width of the rect.
-export function getLines(
-  ctx: CanvasRenderingContext2D,
-  words: string[],
-  maxWidth: number,
-  fontSize: number
-) {
+export function getWrapLines(ctx: CanvasRenderingContext2D, words: string[], maxWidth: number, fontSize: number) {
   const lines = [];
   let currentLine = words[0] || '';
   for (let i = 1; i < words.length; ++i) {
@@ -45,10 +42,7 @@ export function getLines(
     const text = currentLine + word;
     const chinese = text.match(/[\u4e00-\u9fa5]/g) || '';
     const chineseLen = chinese.length;
-    if (
-      (text.length - chineseLen) * fontSize * 0.5 + chineseLen * fontSize <
-      maxWidth
-    ) {
+    if ((text.length - chineseLen) * fontSize * 0.5 + chineseLen * fontSize < maxWidth) {
       currentLine += word;
     } else {
       lines.push(currentLine);
@@ -59,14 +53,50 @@ export function getLines(
   return lines;
 }
 
-function textBk(
-  ctx: CanvasRenderingContext2D,
-  str: string,
-  x: number,
-  y: number,
-  height: number,
-  color?: string
-) {
+export function getLines(ctx: CanvasRenderingContext2D, pen: Pen) {
+  let lines = [];
+
+  switch (pen.whiteSpace) {
+    case 'nowrap':
+      lines.push(pen.text);
+      break;
+    case 'pre-line':
+      lines = pen.text.split(/[\n]/g);
+      break;
+    default:
+      const textRect = pen.getTextRect();
+      const paragraphs = pen.text.split(/[\n]/g);
+      for (let i = 0; i < paragraphs.length; ++i) {
+        const l = getWrapLines(ctx, getWords(paragraphs[i]), textRect.width, pen.font.fontSize);
+        lines.push.apply(lines, l);
+      }
+      break;
+  }
+
+  return lines;
+}
+
+export function calcTextRect(ctx: CanvasRenderingContext2D, pen: Pen) {
+  const lines = getLines(ctx, pen);
+  let width = 0;
+  for (const item of lines) {
+    ctx.font = `${pen.font.fontStyle || 'normal'} normal ${pen.font.fontWeight || 'normal'} ${pen.font.fontSize}px/${
+      pen.font.lineHeight
+    } ${pen.font.fontFamily}`;
+    const r = ctx.measureText(item);
+    const w = r.width;
+    if (w > width) {
+      width = w;
+    }
+  }
+
+  return {
+    width,
+    height: lines.length * pen.font.fontSize * pen.font.lineHeight,
+  };
+}
+
+function textBk(ctx: CanvasRenderingContext2D, str: string, x: number, y: number, height: number, color?: string) {
   if (!str || !color) {
     return;
   }
@@ -123,9 +153,7 @@ export function fillText(
   if (maxLineLen < lines.length) {
     let str = (lines[maxLineLen - 1] || '') + '...';
     if (lines[maxLineLen - 1] && ctx.measureText(str).width > width) {
-      str =
-        lines[maxLineLen - 1].substr(0, lines[maxLineLen - 1].length - 2) +
-        '...';
+      str = lines[maxLineLen - 1].substr(0, lines[maxLineLen - 1].length - 2) + '...';
     }
     if (bk) {
       textBk(ctx, str, x, y + (maxLineLen - 1) * lineHeight, lineHeight, bk);
@@ -133,20 +161,13 @@ export function fillText(
     ctx.fillText(str, x, y + (maxLineLen - 1) * lineHeight);
   } else {
     if (bk) {
-      textBk(
-        ctx,
-        lines[maxLineLen - 1],
-        x,
-        y + (maxLineLen - 1) * lineHeight,
-        lineHeight,
-        bk
-      );
+      textBk(ctx, lines[maxLineLen - 1], x, y + (maxLineLen - 1) * lineHeight, lineHeight, bk);
     }
     ctx.fillText(lines[maxLineLen - 1], x, y + (maxLineLen - 1) * lineHeight);
   }
 }
 
-export function text(ctx: CanvasRenderingContext2D, node: Node | Line) {
+export function text(ctx: CanvasRenderingContext2D, node: Pen) {
   if (!node.text) {
     return;
   }
@@ -158,14 +179,14 @@ export function text(ctx: CanvasRenderingContext2D, node: Node | Line) {
   ctx.beginPath();
   delete ctx.shadowColor;
   delete ctx.shadowBlur;
-  ctx.font = `${node.font.fontStyle || 'normal'} normal ${
-    node.font.fontWeight || 'normal'
-  } ${node.font.fontSize}px/${node.font.lineHeight} ${node.font.fontFamily}`;
+  ctx.font = `${node.font.fontStyle || 'normal'} normal ${node.font.fontWeight || 'normal'} ${node.font.fontSize}px/${
+    node.font.lineHeight
+  } ${node.font.fontFamily}`;
 
   if (node.font.color) {
     ctx.fillStyle = node.font.color;
   } else {
-    ctx.fillStyle = '#222';
+    ctx.fillStyle = Store.get(node.generateStoreKey('LT:fontColor'));
   }
   if (node.font.textAlign) {
     ctx.textAlign = node.font.textAlign as any;
@@ -175,31 +196,14 @@ export function text(ctx: CanvasRenderingContext2D, node: Node | Line) {
   }
 
   const textRect = node.getTextRect();
-  const lines = [];
-  const paragraphs = node.text.split(/[\n,]/g);
-  for (let i = 0; i < paragraphs.length; ++i) {
-    const l = getLines(
-      ctx,
-      getWords(paragraphs[i]),
-      textRect.width,
-      node.font.fontSize
-    );
-    lines.push.apply(lines, l);
-  }
+  const lines = getLines(ctx, node);
 
   const lineHeight = node.font.fontSize * node.font.lineHeight;
   let maxLineLen = node.textMaxLine || lines.length;
-  // const rectLines = textRect.height / lineHeight;
-  // if (!maxLineLen) {
-  //   maxLineLen = lines.length > rectLines ? rectLines : lines.length;
-  // }
 
   // By default, the text is center aligned.
   let x = textRect.x + textRect.width / 2;
-  let y =
-    textRect.y +
-    (textRect.height - lineHeight * maxLineLen) / 2 +
-    (lineHeight * 4) / 7;
+  let y = textRect.y + (textRect.height - lineHeight * maxLineLen) / 2 + (lineHeight * 4) / 7;
   switch (ctx.textAlign) {
     case 'left':
       x = textRect.x;
@@ -289,10 +293,7 @@ export function iconfont(ctx: CanvasRenderingContext2D, node: Node) {
   } else {
     ctx.font = `${iconRect.width}px ${node.iconFamily}`;
   }
-  if (!node.iconColor) {
-    node.iconColor = '#2f54eb';
-  }
-  ctx.fillStyle = node.iconColor;
+  ctx.fillStyle = node.iconColor || Store.get(node.generateStoreKey('LT:iconColor')) || node.font.color;
   ctx.beginPath();
   ctx.fillText(node.icon, x, y);
   ctx.restore();

@@ -1,24 +1,75 @@
 import { Point } from '../models/point';
 import { Pen } from '../models/pen';
 import { Node } from '../models/node';
+import { Line } from '../models/line';
 
-export function flatNodes(nodes: Pen[]): Node[] {
-  const result: Node[] = [];
+export function flatNodes(
+  nodes: Pen[]
+): {
+  nodes: Node[];
+  lines: Line[];
+} {
+  const result = {
+    nodes: [],
+    lines: [],
+  };
 
   for (const item of nodes) {
     if (item.type) {
+      result.lines.push(item);
       continue;
     }
-    result.push(item as Node);
+    result.nodes.push(item);
     if ((item as Node).children) {
-      result.push.apply(result, flatNodes((item as Node).children));
+      result.nodes.push.apply(result.nodes, flatNodes((item as Node).children).nodes);
+      result.lines.push.apply(result.lines, flatNodes((item as Node).children).lines);
     }
+  }
+  return result;
+}
+
+export function find(idOrTag: string, pens: Pen[]) {
+  const result: Pen[] = [];
+  pens.forEach((item) => {
+    if (item.id === idOrTag || item.tags.indexOf(idOrTag) > -1) {
+      result.push(item);
+    }
+
+    if ((item as any).children) {
+      const children: any = find(idOrTag, (item as any).children);
+      if (children && children.length > 1) {
+        result.push.apply(result, children);
+      } else if (children) {
+        result.push(children);
+      }
+    }
+  });
+
+  if (result.length === 0) {
+    return;
+  } else if (result.length === 1) {
+    return result[0];
   }
 
   return result;
 }
 
-export function getParent(pens: Pen[], child: Node): Node {
+export function del(idOrTag: string, pens: Pen[]) {
+  const deleted: Pen[] = [];
+  for (let i = 0; i < pens.length; i++) {
+    if (pens[i].id === idOrTag || pens[i].tags.indexOf(idOrTag) > -1) {
+      deleted.push(pens[i]);
+      pens.splice(i, 1);
+      --i;
+    } else if ((pens[i] as any).children) {
+      deleted.push.apply(deleted, del(idOrTag, (pens[i] as any).children));
+    }
+  }
+
+  return deleted;
+}
+
+export function getParent(pens: Pen[], child: Pen): Node {
   let parent: Node;
   for (const item of pens) {
     if (item.type) {
@@ -48,8 +99,7 @@ export function getParent(pens: Pen[], child: Node): Node {
   return parent;
 }
 
-
-export function pointInRect(point: Point, vertices: Point[]): boolean {
+export function pointInRect(point: { x: number; y: number }, vertices: Point[]): boolean {
   if (vertices.length < 3) {
     return false;
   }
@@ -74,7 +124,7 @@ export function pointInLine(point: Point, from: Point, to: Point): boolean {
     new Point(from.x - 8, from.y - 8),
     new Point(to.x - 8, to.y - 8),
     new Point(to.x + 8, to.y + 8),
-    new Point(from.x + 8, from.y + 8)
+    new Point(from.x + 8, from.y + 8),
   ];
 
   return pointInRect(point, points);

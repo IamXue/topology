@@ -41,7 +41,7 @@ export class Rect {
     return new Rect(this.x, this.y, this.width, this.height);
   }
 
-  hit(pt: Point, padding = 0) {
+  hit(pt: { x: number; y: number }, padding = 0) {
     return pt.x > this.x - padding && pt.x < this.ex + padding && pt.y > this.y - padding && pt.y < this.ey + padding;
   }
 
@@ -54,7 +54,7 @@ export class Rect {
     );
   }
 
-  hitRotate(point: Point, rotate: number, center: Point) {
+  hitRotate(point: { x: number; y: number }, rotate: number, center: Point) {
     const pts = this.toPoints();
     for (const pt of pts) {
       pt.rotate(rotate, center);
@@ -73,7 +73,7 @@ export class Rect {
       new Point(this.x, this.y),
       new Point(this.ex, this.y),
       new Point(this.ex, this.ey),
-      new Point(this.x, this.ey)
+      new Point(this.x, this.ey),
     ];
   }
 

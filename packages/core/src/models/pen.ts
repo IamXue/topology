@@ -1,13 +1,12 @@
-
 import { Store } from 'le5le-store';
 
 import { s8 } from '../utils/uuid';
 import { Point } from './point';
 import { Rect } from './rect';
-import { pointInRect } from '../utils/canvas';
 import { EventType, EventAction } from './event';
 
 import { Lock } from './status';
+import { pentagon } from '../middles/nodes/pentagon';
 
 export enum PenType {
   Node,
@@ -41,11 +40,13 @@ export abstract class Pen {
     fontWeight: 'normal',
     textAlign: 'center',
     textBaseline: 'middle',
-    background: ''
+    background: '',
   };
 
   text: string;
   textMaxLine: number;
+  whiteSpace: string;
+  autoRect: boolean;
   textRect: Rect;
   fullTextRect: Rect;
   textOffsetX: number;
@@ -68,6 +69,8 @@ export abstract class Pen {
   // Auto-play
   animatePlay: boolean;
 
+  animatePos = 0;
+
   locked: Lock;
   // 作为子节点，是否可以直接点击选中
   stand: boolean;
@@ -81,8 +84,8 @@ export abstract class Pen {
   tipId: string;
   title: string;
 
-  events: { type: EventType; action: EventAction; value: string; params: string; name?: string; }[] = [];
-  private eventFns: string[] = ['link', 'doAnimate', 'doFn', 'doWindowFn'];
+  events: { type: EventType; action: EventAction; value: string; params: string; name?: string }[] = [];
+  private eventFns: string[] = ['link', 'doStartAnimate', 'doFn', 'doWindowFn', '', 'doPauseAnimate', 'doStopAnimate'];
 
   parentId: string;
   rectInParent: {
@@ -110,6 +113,7 @@ export abstract class Pen {
   value: number;
   constructor(json?: any) {
     if (json) {
+      this.TID = json.TID;
       this.id = json.id || s8();
       this.name = json.name || '';
       this.value = json.value;
@@ -120,9 +124,7 @@ export abstract class Pen {
       this.dash = json.dash || 0;
       this.lineDash = json.lineDash;
       this.lineDashOffset = json.lineDashOffset || 0;
-      if (json.lineWidth || json.lineWidth === 0) {
-        this.lineWidth = json.lineWidth;
-      }
+      this.lineWidth = json.lineWidth || 1;
       this.strokeStyle = json.strokeStyle || '';
       this.fillStyle = json.fillStyle || '';
       this.lineCap = json.lineCap;
@@ -136,6 +138,8 @@ export abstract class Pen {
       if (json.textMaxLine) {
         this.textMaxLine = +json.textMaxLine || 0;
       }
+      this.whiteSpace = json.whiteSpace;
+      this.autoRect = json.autoRect;
       this.textOffsetX = json.textOffsetX || 0;
       this.textOffsetY = json.textOffsetY || 0;
 
@@ -148,6 +152,7 @@ export abstract class Pen {
       this.animateCycle = json.animateCycle;
       this.nextAnimate = json.nextAnimate;
       this.animatePlay = json.animatePlay;
+      this.animatePos = json.animatePos || 0;
 
       this.locked = json.locked;
       this.stand = json.stand;
@@ -155,7 +160,12 @@ export abstract class Pen {
       this.hideRotateCP = json.hideRotateCP;
       this.hideSizeCP = json.hideSizeCP;
       this.hideAnchor = json.hideAnchor;
-      this.events = json.events || [];
+      if (json.events) {
+        this.events = JSON.parse(JSON.stringify(json.events));
+      } else {
+        this.events = [];
+      }
+
       this.markdown = json.markdown;
       this.tipId = json.tipId;
       this.title = json.title;
@@ -203,7 +213,7 @@ export abstract class Pen {
       ctx.lineWidth = this.lineWidth;
     }
 
-    ctx.strokeStyle = this.strokeStyle || '#222';
+    ctx.strokeStyle = this.strokeStyle || Store.get(this.generateStoreKey('LT:color'));
     this.fillStyle && (ctx.fillStyle = this.fillStyle);
 
     if (this.lineCap) {
@@ -253,18 +263,6 @@ export abstract class Pen {
     }
   }
 
-  hit(point: Point, padding = 0) {
-    if (this.rotate % 360 === 0) {
-      return this.rect.hit(point, padding);
-    }
-
-    const pts = this.rect.toPoints();
-    for (const pt of pts) {
-      pt.rotate(this.rotate, this.rect.center);
-    }
-    return pointInRect(point, pts);
-  }
-
   click() {
     if (!this.events) {
       return;
@@ -293,8 +291,12 @@ export abstract class Pen {
     }
   }
 
-  doSocketMqtt(item: { type: EventType; action: EventAction; value: string; params: string; name?: string; }, msg: any, client: any) {
-    if (item.action < EventAction.Function) {
+  doSocketMqtt(
+    item: { type: EventType; action: EventAction; value: string; params: string; name?: string },
+    msg: any,
+    client: any
+  ) {
+    if (item.action < EventAction.Function || item.action === EventAction.StopAnimate) {
       this[this.eventFns[item.action]](msg.value || msg || item.value, msg.params || item.params, client);
     } else if (item.action < EventAction.SetProps) {
       this[this.eventFns[item.action]](item.value, msg || item.params, client);
@@ -304,7 +306,7 @@ export abstract class Pen {
       if (typeof msg === 'string') {
         try {
           data = JSON.parse(msg);
-        } catch (error) { }
+        } catch (error) {}
       }
       if (Array.isArray(data)) {
         props = data;
@@ -312,15 +314,30 @@ export abstract class Pen {
 
       for (const prop of props) {
         if (prop.key) {
+          const keys = prop.key.split('.');
+
           if (typeof prop.value === 'object') {
-            this[prop.key] = Object.assign(this[prop.key], prop.value);
+            if (keys[1]) {
+              this[keys[0]][keys[1]] = Object.assign(this[prop.key], prop.value);
+            } else {
+              this[keys[0]] = Object.assign(this[prop.key], prop.value);
+            }
           } else {
-            this[prop.key] = prop.value;
+            if (keys[1]) {
+              this[keys[0]][keys[1]] = prop.value;
+            } else {
+              this[keys[0]] = prop.value;
+            }
           }
         }
       }
 
-      Store.set(this.generateStoreKey('LT:render'), true);
+      if (this.type === PenType.Node) {
+        this['elementRendered'] = false;
+      }
+      if (item.params || item.params === undefined) {
+        Store.set(this.generateStoreKey('LT:render'), true);
+      }
     }
   }
 
@@ -342,21 +359,56 @@ export abstract class Pen {
     return this.TID;
   }
 
-  setTID(id) {
+  setTID(id: string) {
     this.TID = id;
     return this;
+  }
+
+  startAnimate() {
+    this.animateStart = Date.now();
+    if (this.type === PenType.Node && !this['animateReady']) {
+      this['initAnimate']();
+    }
+
+    Store.set(this.generateStoreKey('LT:AnimatePlay'), {
+      pen: this,
+    });
   }
 
   private link(url: string, params: string) {
     window.open(url, params === undefined ? '_blank' : params);
   }
 
-  private doAnimate(tag: string, params: string) {
-    this.animateStart = Date.now();
-    Store.set(this.generateStoreKey('LT:AnimatePlay'), {
-      tag,
-      pen: this
-    });
+  private doStartAnimate(tag: string, params: string) {
+    if (tag) {
+      Store.set(this.generateStoreKey('LT:AnimatePlay'), {
+        tag,
+      });
+    } else {
+      this.startAnimate();
+    }
+  }
+
+  private doPauseAnimate(tag: string, params: string) {
+    if (tag) {
+      Store.set(this.generateStoreKey('LT:AnimatePlay'), {
+        tag,
+        stop: true,
+      });
+    } else {
+      this.pauseAnimate();
+    }
+  }
+
+  private doStopAnimate(tag: string, params: string) {
+    if (tag) {
+      Store.set(this.generateStoreKey('LT:AnimatePlay'), {
+        tag,
+        stop: true,
+      });
+    } else {
+      this.stopAnimate();
+    }
   }
 
   private doFn(fn: string, params: string, client?: any) {
@@ -373,7 +425,7 @@ export abstract class Pen {
     (window as any)[fn](this, params, client);
   }
 
-  protected generateStoreKey(key) {
+  generateStoreKey(key) {
     return `${this.TID}-${key}`;
   }
 
@@ -381,8 +433,12 @@ export abstract class Pen {
   abstract calcRectInParent(parent: Pen): void;
   abstract calcRectByParent(parent: Pen): void;
   abstract draw(ctx: CanvasRenderingContext2D): void;
-  abstract animate(now: number): void;
   abstract translate(x: number, y: number): void;
-  abstract scale(scale: number, center?: Point): void;
+  abstract scale(scale: number, center?: { x: number; y: number }): void;
+  abstract hit(point: { x: number; y: number }, padding?: number): any;
   abstract clone(): Pen;
+  abstract initAnimate(): void;
+  abstract animate(now: number): void;
+  abstract pauseAnimate(): void;
+  abstract stopAnimate(): void;
 }

@@ -11,7 +11,7 @@ export class Canvas extends Layer {
   canvas = document.createElement('canvas');
   width = 0;
   height = 0;
-  constructor(public parentElem: HTMLElement, public options: Options = {}, TID: String) {
+  constructor(public parentElem: HTMLElement, public options: Options = {}, TID: string) {
     super(TID);
     this.data = Store.get(this.generateStoreKey('topology-data'));
     this.canvas.style.position = 'absolute';
@@ -28,10 +28,14 @@ export class Canvas extends Layer {
         }
       }
       Canvas.dpiRatio = window.devicePixelRatio + options.extDpiRatio;
+
+      if (Canvas.dpiRatio < 1) {
+        Canvas.dpiRatio = 1;
+      }
     }
   }
 
-  resize(size?: { width: number; height: number; }) {
+  resize(size?: { width: number; height: number }) {
     if (size) {
       this.width = size.width | 0;
       this.height = size.height | 0;

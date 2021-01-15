@@ -9,7 +9,7 @@ export class Offscreen extends Canvas {
   public activeLayer: ActiveLayer;
   public hoverLayer: HoverLayer;
   public animateLayer: AnimateLayer;
-  constructor(public parentElem: HTMLElement, public options: Options = {}, TID: String) {
+  constructor(public parentElem: HTMLElement, public options: Options = {}, TID: string) {
     super(parentElem, options, TID);
     this.activeLayer = Store.get(this.generateStoreKey('LT:ActiveLayer'));
     this.hoverLayer = Store.get(this.generateStoreKey('LT:HoverLayer'));
@@ -34,6 +34,4 @@ export class Offscreen extends Canvas {
     this.animateLayer.render(ctx);
     this.hoverLayer.render(ctx);
   }
-
-
 }

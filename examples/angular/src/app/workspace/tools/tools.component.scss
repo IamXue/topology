@@ -1,5 +1,5 @@
-@import "src/variables";
-@import "~le5le-ui/variables";
+@import 'src/variables';
+@import '~le5le-ui/variables';
 
 .search {
   border-bottom: 1px solid $color-border;
@@ -56,7 +56,8 @@
     padding-left: 0.2rem;
     line-height: 1;
 
-    & > i {
+    & > i,
+    & > div {
       display: inline-block;
       font-size: 0.24rem;
       width: 0.24rem;

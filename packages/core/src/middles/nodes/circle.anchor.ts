@@ -13,7 +13,7 @@ export function circleAnchors(node: Node) {
       continue;
     }
 
-    const direction = Math.floor(i / 90);
+    const direction = Math.round(i / 90);
     const pt = new Point(
       node.rect.center.x + (Math.sin((i / 180) * Math.PI) * node.rect.width) / 2,
       node.rect.center.y + (Math.cos((i / 180) * Math.PI) * node.rect.height) / 2,

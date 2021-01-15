@@ -7,8 +7,10 @@ export class Point {
   direction: Direction;
   // The index of docker anchor on node.
   radius: number;
+  strokeStyle: string;
   fillStyle: string;
   anchorIndex: number;
+  autoAnchor: boolean;
 
   hidden: boolean;
   mode: AnchorMode;
@@ -19,12 +21,14 @@ export class Point {
     direction?: Direction,
     anchorIndex?: number,
     id?: number | string,
-    hidden?: boolean
+    hidden?: boolean,
+    autoAnchor?: boolean
   ) {
     this.direction = direction;
     this.anchorIndex = anchorIndex;
     this.id = id;
     this.hidden = hidden;
+    this.autoAnchor = autoAnchor;
   }
 
   floor() {
@@ -38,14 +42,7 @@ export class Point {
   }
 
   clone(): Point {
-    const pt = new Point(
-      this.x,
-      this.y,
-      this.direction,
-      this.anchorIndex,
-      this.id,
-      this.hidden
-    );
+    const pt = new Point(this.x, this.y, this.direction, this.anchorIndex, this.id, this.hidden, this.autoAnchor);
     if (this.data) {
       pt.data = this.data;
     }
@@ -55,13 +52,8 @@ export class Point {
     return pt;
   }
 
-  hit(pt: Point, radius = 5) {
-    return (
-      pt.x > this.x - radius &&
-      pt.x < this.x + radius &&
-      pt.y > this.y - radius &&
-      pt.y < this.y + radius
-    );
+  hit(pt: { x: number; y: number }, radius = 5) {
+    return pt.x > this.x - radius && pt.x < this.x + radius && pt.y > this.y - radius && pt.y < this.y + radius;
   }
 
   rotate(angle: number, center: { x: number; y: number }): Point {
@@ -70,24 +62,16 @@ export class Point {
     }
 
     angle *= Math.PI / 180;
-    const x =
-      (this.x - center.x) * Math.cos(angle) -
-      (this.y - center.y) * Math.sin(angle) +
-      center.x;
-    const y =
-      (this.x - center.x) * Math.sin(angle) +
-      (this.y - center.y) * Math.cos(angle) +
-      center.y;
+    const x = (this.x - center.x) * Math.cos(angle) - (this.y - center.y) * Math.sin(angle) + center.x;
+    const y = (this.x - center.x) * Math.sin(angle) + (this.y - center.y) * Math.cos(angle) + center.y;
     this.x = x;
     this.y = y;
     return this;
   }
 
   isSameAs(pt: Point) {
-    return (
-      this.anchorIndex === pt.anchorIndex &&
-      this.direction === pt.direction &&
-      this.id === pt.id
-    );
+    return this.anchorIndex === pt.anchorIndex && this.direction === pt.direction && this.id === pt.id;
   }
 }
+
+(window as any).topologyPoint = Point;

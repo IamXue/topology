@@ -17,15 +17,15 @@ export class DivLayer extends Layer {
   progress: HTMLElement;
   loop: HTMLElement;
   media: HTMLMediaElement;
-  videos: { [key: string]: { player: HTMLElement; current: HTMLElement; media: HTMLMediaElement; }; } = {};
-  audios: { [key: string]: { player: HTMLElement; current: HTMLElement; media: HTMLMediaElement; }; } = {};
-  iframes: { [key: string]: HTMLIFrameElement; } = {};
-  elements: { [key: string]: HTMLElement; } = {};
-  gifs: { [key: string]: HTMLImageElement; } = {};
+  videos: { [key: string]: { player: HTMLElement; current: HTMLElement; media: HTMLMediaElement } } = {};
+  audios: { [key: string]: { player: HTMLElement; current: HTMLElement; media: HTMLMediaElement } } = {};
+  iframes: { [key: string]: HTMLIFrameElement } = {};
+  elements: { [key: string]: HTMLElement } = {};
+  gifs: { [key: string]: HTMLImageElement } = {};
 
   private subcribe: Observer;
   private subcribeNode: Observer;
-  constructor(public parentElem: HTMLElement, public options: Options = {}, TID: String) {
+  constructor(public parentElem: HTMLElement, public options: Options = {}, TID: string) {
     super(TID);
     this.data = Store.get(this.generateStoreKey('topology-data'));
     if (!this.options.playIcon) {
@@ -67,8 +67,9 @@ export class DivLayer extends Layer {
       }
 
       this.curNode = node;
-      this.player.style.top = this.parentElem.offsetTop + this.parentElem.clientHeight + 'px';
-      this.player.style.left = this.parentElem.getBoundingClientRect().left + 'px';
+      const rect = this.parentElem.getBoundingClientRect();
+      this.player.style.top = rect.top + this.parentElem.clientHeight - 40 + 'px';
+      this.player.style.left = rect.left + 'px';
       this.player.style.width = this.parentElem.clientWidth + 'px';
       this.getMediaCurrent();
       if (this.media.paused) {
@@ -78,7 +79,7 @@ export class DivLayer extends Layer {
       }
     });
 
-    document.addEventListener('fullscreenchange', e => {
+    document.addEventListener('fullscreenchange', (e) => {
       if (!this.media) {
         return;
       }
@@ -107,11 +108,19 @@ export class DivLayer extends Layer {
       }
       this.setElemPosition(node, (this.videos[node.id] && this.videos[node.id].player) || this.addMedia(node, 'video'));
     }
+
     if (node.iframe) {
-      if (this.iframes[node.id] && this.iframes[node.id].src !== node.iframe) {
-        this.iframes[node.id].src = node.iframe;
+      if (!this.iframes[node.id]) {
+        this.addIframe(node);
+        setTimeout(() => {
+          this.addDiv(node);
+        });
+      } else {
+        if (this.iframes[node.id].src !== node.iframe) {
+          this.iframes[node.id].src = node.iframe;
+        }
+        this.setElemPosition(node, this.iframes[node.id]);
       }
-      this.setElemPosition(node, this.iframes[node.id] || this.addIframe(node));
     }
 
     if (node.elementId) {
@@ -307,7 +316,7 @@ export class DivLayer extends Layer {
     this[type + 's'][node.id] = {
       player,
       current,
-      media
+      media,
     };
     this.canvas.appendChild(player);
 
@@ -412,7 +421,7 @@ export class DivLayer extends Layer {
     }
   }
 
-  clear() {
+  clear(shallow?: boolean) {
     this.canvas.innerHTML = '';
     this.audios = {};
     this.videos = {};
@@ -420,9 +429,11 @@ export class DivLayer extends Layer {
     this.elements = {};
     this.gifs = {};
 
-    // tslint:disable-next-line:forin
-    for (const key in images) {
-      delete images[key];
+    if (!shallow) {
+      // tslint:disable-next-line:forin
+      for (const key in images) {
+        delete images[key];
+      }
     }
 
     this.player.style.top = '-99999px';
@@ -446,7 +457,7 @@ export class DivLayer extends Layer {
     return txt;
   }
 
-  resize(size?: { width: number; height: number; }) {
+  resize(size?: { width: number; height: number }) {
     if (size) {
       this.canvas.style.width = size.width + 'px';
       this.canvas.style.height = size.height + 'px';

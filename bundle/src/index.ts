@@ -1,4 +1,4 @@
-import { Topology, registerNode, Pen, Node, Point, Line, Rect, s8 } from '@topology/core';
+import { Topology, registerNode, Pen, Node, Point, Line, Rect, s8, TopologyData } from '@topology/core';
 import { Store, Observer } from 'le5le-store';
 
 import { register as registerFlow } from '@topology/flow-diagram';
@@ -17,6 +17,7 @@ registerChart();
 (window as any).Le5leTopology = {
   Topology,
   registerNode,
+  TopologyData,
   Pen,
   Node,
   Point,
@@ -27,5 +28,5 @@ registerChart();
   s8,
   layout,
   alignNodes,
-  spaceBetween
+  spaceBetween,
 };

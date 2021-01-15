@@ -2,13 +2,15 @@ export enum EventType {
   Click,
   DblClick,
   WebSocket,
-  Mqtt
+  Mqtt,
 }
 
 export enum EventAction {
   Link,
-  Animate,
+  StartAnimate,
   Function,
   WindowFn,
-  SetProps
+  SetProps,
+  PauseAnimate,
+  StopAnimate,
 }

@@ -96,28 +96,28 @@ function getDirectionPoint(pt: Point, to: Point) {
   switch (pt.direction) {
     case Direction.Up:
       if (to.y < pt.y) {
-        point.y -= Math.floor((pt.y - to.y) / 2);
+        point.y -= Math.round((pt.y - to.y) / 2);
       } else {
         point.y -= minDistance;
       }
       break;
     case Direction.Right:
       if (to.x > pt.x) {
-        point.x += Math.floor((to.x - pt.x) / 2);
+        point.x += Math.round((to.x - pt.x) / 2);
       } else {
         point.x += minDistance;
       }
       break;
     case Direction.Bottom:
       if (to.y > pt.y) {
-        point.y += Math.floor((to.y - pt.y) / 2);
+        point.y += Math.round((to.y - pt.y) / 2);
       } else {
         point.y += minDistance;
       }
       break;
     case Direction.Left:
       if (to.x < pt.x) {
-        point.x -= Math.floor((pt.x - to.x) / 2);
+        point.x -= Math.round((pt.x - to.x) / 2);
       } else {
         point.x -= minDistance;
       }

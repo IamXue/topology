@@ -1,7 +1,6 @@
 import { Node } from '../../models/node';
 import { Rect } from '../../models/rect';
-import { getLines, getWords } from './text';
-// import { Store } from 'le5le-store';
+import { getWrapLines, getWords } from './text';
 
 const txtMarginTop = 5;
 const minSize = 30;
@@ -40,8 +39,7 @@ export function imageTextRect(node: Node) {
   if (node.textMaxLine) {
     height = lineHeight * node.textMaxLine;
   } else {
-    // const canvas = Store.get(node.getTID() + '-LT:offscreen');
-    const lines = getLines(null, getWords(node.text), node.rect.width, node.font.fontSize);
+    const lines = getWrapLines(null, getWords(node.text), node.rect.width, node.font.fontSize);
     height = lineHeight * lines.length;
   }
 

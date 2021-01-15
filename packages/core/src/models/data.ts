@@ -3,28 +3,36 @@ import { Node } from './node';
 import { Line } from './line';
 import { Lock } from './status';
 import { s8 } from '../utils';
+import { EventAction, EventType } from './event';
 
 export class TopologyData {
   pens: Pen[] = [];
   lineName = 'curve';
-  fromArrowType = '';
-  toArrowType = 'triangleSolid';
+  fromArrow = '';
+  toArrow = 'triangleSolid';
+  lineWidth?: number;
   scale = 1;
   locked = Lock.None;
   bkImage: string;
   bkColor: string;
   grid?: boolean;
+  gridColor?: string;
+  gridSize?: number;
+  rule?: boolean;
+  ruleColor?: string;
   websocket?: string;
   mqttUrl?: string;
   mqttOptions?: {
-    clientId?: string,
-    username?: string,
-    password?: string,
+    clientId?: string;
+    username?: string;
+    password?: string;
   } = {
-      clientId: s8()
-    };
+    clientId: s8(),
+  };
   mqttTopics?: string;
+  events?: { type: EventType; action: EventAction; value: string; params: string; name?: string }[];
   manualCps?: boolean;
+  tooltip?: boolean | number;
   data?: any;
   constructor(json?: any) {
     if (json) {
@@ -37,8 +45,8 @@ export class TopologyData {
         }
       }
       this.lineName = json.lineName || 'curve';
-      this.fromArrowType = json.fromArrowType || '';
-      this.toArrowType = json.toArrowType || 'triangleSolid';
+      this.fromArrow = json.fromArrow || '';
+      this.toArrow = json.toArrow || 'triangleSolid';
       this.scale = json.scale || 1;
       this.locked = json.locked || Lock.None;
       this.bkImage = json.bkImage;
@@ -65,6 +73,10 @@ export class TopologyData {
         this.data = JSON.parse(JSON.stringify(json.data));
       } else {
         this.data = json.data || '';
+      }
+
+      if (json.events) {
+        this.events = json.events;
       }
     }
     if (!this.mqttOptions) {
