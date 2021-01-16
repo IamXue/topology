@@ -1125,6 +1125,7 @@ export class Topology {
           node: this.moveIn.hoverNode,
           line: this.hoverLayer.line,
         });
+        // 跳出 不选中
         break;
 
       case MoveInType.AutoAnchor:
@@ -1241,7 +1242,8 @@ export class Topology {
             }
 
             if (willAddLine) {
-              this.activeLayer.pens = [this.hoverLayer.line];
+              // 不选中
+              // this.activeLayer.pens = [this.hoverLayer.line];
               this.dispatch('addLine', this.hoverLayer.line);
             } else {
               this.data.pens.pop();
