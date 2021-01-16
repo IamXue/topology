@@ -25,7 +25,12 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
   @ViewChild('workspace', { static: true }) workspace: ElementRef;
   tools: any[] = [];
   canvas: Topology;
-  canvasOptions: Options = {};
+  canvasOptions: Options = {
+    alwaysAnchor: true,
+    disableRepeatLine: true,
+    disableEmptyLine: true,
+    hideActiveLineCP: true
+  };
   selection: {
     pen?: Pen;
     pens?: Pen[];
@@ -492,15 +497,20 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
 
   onMessage = (event: string, data: any) => {
     switch (event) {
+      case 'anchor': 
+        break;
       case 'node':
+        break;
       case 'addNode':
+        break;
       case 'line':
+        break;
       case 'addLine':
         this.selection = {
           pen: data,
         };
-        this.locked = data.locked;
-        break;
+      this.locked = data.locked;        
+      break;
       case 'multi':
         this.locked = true;
         if (data && data.length) {
@@ -544,7 +554,7 @@ export class WorkspaceComponent implements OnInit, OnDestroy {
         Store.set('locked', data);
         break;
     }
-    console.log('onMessage:', event, data);
+    // console.log('onMessage:', event, data);
   };
 
   onSignup() {

@@ -9,9 +9,10 @@ export class Point {
   radius: number;
   strokeStyle: string;
   fillStyle: string;
+  hoverFillStyle: string;
+  hoverStrokeStyle: string;
   anchorIndex: number;
   autoAnchor: boolean;
-
   hidden: boolean;
   mode: AnchorMode;
   data: any;
@@ -22,12 +23,26 @@ export class Point {
     anchorIndex?: number,
     id?: number | string,
     hidden?: boolean,
+    mode?: AnchorMode,
+    radius?: number,
+    strokeStyle?: string,
+    fillStyle?: string,
+    hoverFillStyle?: string,
+    hoverStrokeStyle?: string,
+    data?: any,
     autoAnchor?: boolean
   ) {
     this.direction = direction;
     this.anchorIndex = anchorIndex;
     this.id = id;
     this.hidden = hidden;
+    this.mode = mode;
+    this.radius = radius;
+    this.strokeStyle = strokeStyle;
+    this.fillStyle = fillStyle;
+    this.hoverFillStyle = hoverFillStyle;
+    this.hoverStrokeStyle = hoverStrokeStyle;
+    this.data = data;
     this.autoAnchor = autoAnchor;
   }
 
@@ -42,7 +57,21 @@ export class Point {
   }
 
   clone(): Point {
-    const pt = new Point(this.x, this.y, this.direction, this.anchorIndex, this.id, this.hidden, this.autoAnchor);
+    const pt = new Point(
+      this.x,
+      this.y,
+      this.direction,
+      this.anchorIndex,
+      this.id,
+      this.hidden,
+      this.mode,
+      this.radius,
+      this.strokeStyle,
+      this.fillStyle,
+      this.hoverFillStyle,
+      this.hoverStrokeStyle,
+      this.autoAnchor
+    );
     if (this.data) {
       pt.data = this.data;
     }

@@ -26,6 +26,9 @@ export interface Options {
   anchorFillStyle?: string;
   dockStrokeStyle?: string;
   dockFillStyle?: string;
+  isHideHoverRect?: boolean;
+  isHideActiveRect?: boolean,
+  hoverDockColor?: string,
   dragColor?: string;
   animateColor?: string;
   font?: {
@@ -38,6 +41,7 @@ export interface Options {
   };
   rotateCursor?: string;
   hoverCursor?: string;
+  hideActiveLineCP?: boolean;
   hideInput?: boolean;
   hideRotateCP?: boolean;
   hideSizeCP?: boolean;
@@ -92,6 +96,9 @@ export const DefalutOptions: Options = {
   anchorFillStyle: '#fff',
   dockStrokeStyle: '#fa541c',
   dockFillStyle: '#fa541c',
+  isHideHoverRect: false,
+  isHideActiveRect: false,
+  hoverDockColor: '#fa541c',
   dragColor: '#1890ff',
   rotateCursor: '/assets/img/rotate.cur',
   hoverCursor: 'pointer',

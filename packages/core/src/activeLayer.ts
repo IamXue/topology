@@ -514,19 +514,21 @@ export class ActiveLayer extends Layer {
       if (item instanceof Node) {
         const tmp = new Node(item, true);
         tmp.setTID(TID);
-        tmp.data = item.data;
+        // tmp.fillStyle = '#ffffff';
         tmp.fillStyle = null;
-        tmp.bkType = 0;
-        tmp.icon = '';
-        tmp.image = '';
-        tmp.text = '';
+        tmp.children = item.children;
+        // tmp.bkType = 0;
+        // tmp.icon = '';
+        // tmp.image = '';
+        // tmp.text = '';
         if (tmp.strokeStyle !== 'transparent') {
           tmp.strokeStyle = '#ffffff';
           tmp.lineWidth += 2;
           tmp.render(ctx);
-
           tmp.strokeStyle = this.options.activeColor;
           tmp.lineWidth -= 2;
+        } else {
+          tmp.strokeStyle = this.options.activeColor;
         }
         tmp.render(ctx);
       }
@@ -545,7 +547,7 @@ export class ActiveLayer extends Layer {
         tmp.toArrowColor = this.options.activeColor;
         tmp.render(ctx);
 
-        if (!this.data.locked && !item.locked) {
+        if (!this.data.locked && !item.locked && !this.options.hideActiveLineCP) {
           drawLineFns[item.name].drawControlPointsFn(ctx, item);
         }
       }
@@ -568,17 +570,19 @@ export class ActiveLayer extends Layer {
     }
 
     // Occupied territory.
-    ctx.save();
-    ctx.globalAlpha = 0.3;
-    ctx.translate(0.5, 0.5);
-    ctx.beginPath();
-    ctx.moveTo(this.sizeCPs[0].x, this.sizeCPs[0].y);
-    ctx.lineTo(this.sizeCPs[1].x, this.sizeCPs[1].y);
-    ctx.lineTo(this.sizeCPs[2].x, this.sizeCPs[2].y);
-    ctx.lineTo(this.sizeCPs[3].x, this.sizeCPs[3].y);
-    ctx.closePath();
-    ctx.stroke();
-    ctx.restore();
+    if (!this.options.isHideActiveRect) {
+      ctx.save();
+      ctx.globalAlpha = 0.3;
+      ctx.translate(0.5, 0.5);
+      ctx.beginPath();
+      ctx.moveTo(this.sizeCPs[0].x, this.sizeCPs[0].y);
+      ctx.lineTo(this.sizeCPs[1].x, this.sizeCPs[1].y);
+      ctx.lineTo(this.sizeCPs[2].x, this.sizeCPs[2].y);
+      ctx.lineTo(this.sizeCPs[3].x, this.sizeCPs[3].y);
+      ctx.closePath();
+      ctx.stroke();
+      ctx.restore();
+    }
 
     // Draw rotate control point.
     ctx.beginPath();
