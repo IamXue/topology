@@ -131,42 +131,7 @@ export class HoverLayer extends Layer {
     ctx.save();
     // anchors
     if (this.options.alwaysAnchor) {
-      this.data.pens.forEach((pen: Pen) => {
-        if (pen.type === PenType.Line) {
-          return;
-        }
-
-        if (pen.hideAnchor) {
-          return;
-        }
-
-        for (const anchor of (pen as Node).rotatedAnchors) {
-          if (anchor.hidden) {
-            continue;
-          }
-          ctx.beginPath();
-          ctx.arc(anchor.x, anchor.y, anchor.radius || this.options.anchorRadius, 0, Math.PI * 2);
-          ctx.strokeStyle = anchor.strokeStyle || this.options.hoverColor;
-          ctx.fillStyle = anchor.fillStyle || this.options.anchorFillStyle;
-          ctx.fill();
-          ctx.stroke();
-        }
-
-        if (this.options.autoAnchor) {
-          ctx.beginPath();
-          ctx.arc(
-            (pen as Node).rect.center.x,
-            (pen as Node).rect.center.y,
-            (pen as Node).rect.center.radius || this.options.anchorRadius,
-            0,
-            Math.PI * 2
-          );
-          ctx.strokeStyle = this.options.hoverColor;
-          ctx.fillStyle = this.options.anchorFillStyle;
-          ctx.fill();
-          ctx.stroke();
-        }
-      });
+      this.drawAlwaysAnchor(ctx, this.data.pens)
     }
     ctx.restore();
     if (this.node && !this.data.locked) {
@@ -280,6 +245,48 @@ export class HoverLayer extends Layer {
       ctx.strokeRect(this.dragRect.x, this.dragRect.y, this.dragRect.width, this.dragRect.height);
       ctx.fillRect(this.dragRect.x, this.dragRect.y, this.dragRect.width, this.dragRect.height);
     }
+  }
+
+  private drawAlwaysAnchor (ctx: CanvasRenderingContext2D, pens) {
+    pens.forEach((pen: Node) => {
+      if (pen.children instanceof Array) {
+        this.drawAlwaysAnchor(ctx, pen.children)
+      }
+      if (pen.type === PenType.Line) {
+        return;
+      }
+
+      if (pen.hideAnchor) {
+        return;
+      }
+
+      for (const anchor of (pen as Node).rotatedAnchors) {
+        if (anchor.hidden) {
+          continue;
+        }
+        ctx.beginPath();
+        ctx.arc(anchor.x, anchor.y, anchor.radius || this.options.anchorRadius, 0, Math.PI * 2);
+        ctx.strokeStyle = anchor.strokeStyle || this.options.hoverColor;
+        ctx.fillStyle = anchor.fillStyle || this.options.anchorFillStyle;
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      if (this.options.autoAnchor) {
+        ctx.beginPath();
+        ctx.arc(
+          (pen as Node).rect.center.x,
+          (pen as Node).rect.center.y,
+          (pen as Node).rect.center.radius || this.options.anchorRadius,
+          0,
+          Math.PI * 2
+        );
+        ctx.strokeStyle = this.options.hoverColor;
+        ctx.fillStyle = this.options.anchorFillStyle;
+        ctx.fill();
+        ctx.stroke();
+      }
+    });
   }
 
   getRoot(node: Node) {
